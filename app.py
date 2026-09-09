@@ -4,7 +4,6 @@ from anthropic import Anthropic
 
 st.set_page_config(page_title="AI Opportunity Mapper", layout="wide")
 
-# Initialize Anthropic client
 client = Anthropic()
 
 # Styling
@@ -41,11 +40,24 @@ st.markdown("""
         font-size: 13px;
         color: #666;
     }
+    .metric-card {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+    .opportunity-header {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f2c4a;
+        margin-bottom: 0.5rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Header
-st.markdown("# AI Opportunity Mapper")
+st.markdown("# 🎯 AI Opportunity Mapper")
 st.markdown("*Tailored AI Transformation Roadmaps*")
 st.divider()
 
@@ -65,7 +77,7 @@ st.markdown("""
 
 # Sidebar for inputs
 with st.sidebar:
-    st.header("Your Challenge")
+    st.header("📋 Your Challenge")
     
     industry = st.selectbox(
         "What is your industry?",
@@ -93,104 +105,62 @@ with st.sidebar:
         ("1-3 months", "3-6 months", "6-12 months", "12+ months")
     )
     
-    generate_btn = st.button("Generate Roadmap", type="primary")
+    generate_btn = st.button("✨ Generate Roadmap", type="primary")
 
 # Main content area
 if generate_btn:
     if not industry or not challenge or not company_size or not budget or not timeline:
-        st.error("Please complete all fields")
+        st.error("❌ Please complete all fields")
     else:
-        with st.spinner("Analyzing your challenge and generating roadmap..."):
+        with st.spinner("🔄 Analyzing your challenge and generating roadmap..."):
             try:
-                prompt = f"""You are an elite AI consulting expert specializing in digital transformation and AI implementation. Your task is to create a detailed, specific, and actionable AI transformation roadmap.
+                prompt = f"""You are an elite AI consulting expert. Generate a JSON roadmap for this challenge.
 
-USER'S SITUATION:
+SITUATION:
 - Industry: {industry}
 - Company Size: {company_size}
 - Budget: {budget}
 - Timeline: {timeline}
 - Challenge: {challenge}
 
-GENERATE A COMPREHENSIVE ROADMAP AS MARKDOWN (NOT JSON):
+Return ONLY valid JSON (no markdown, no code blocks):
 
-Use this structure:
-
-# [Roadmap Title]
-
-## Executive Summary
-[One line summary]
-
-## Overview
-[2-3 paragraphs explaining the challenge and transformation approach]
-
-## AI Opportunities
-
-### 1. [Opportunity Name]
-[2-3 sentences describing it]
-
-**Implementation:**
-Week 1-2: [specific tasks]
-Week 3-4: [next tasks]
-...
-
-**Tools:** [Specific tech - e.g., TensorFlow, Snowflake, AWS SageMaker]
-**Investment:** [Specific amount - e.g., $45K]
-**Team:** [Team composition - e.g., 2 Data Scientists, 1 ML Engineer]
-**ROI:** [Specific ROI - e.g., 180-220%]
-**Business Impact:** [Specific impact with numbers]
-
-### 2. [Opportunity Name]
-[Same structure as above]
-
-## Implementation Roadmap
-
-### Phase 1: [Title]
-**Duration:** X weeks | $YYK
-**Focus:** [What this phase achieves]
-**Milestones:**
-- Week 1-2: [milestone]
-- Week 3: [milestone]
-
-**Activities:**
-- [Activity 1]
-- [Activity 2]
-
-**Deliverables:**
-- [Deliverable 1]
-- [Deliverable 2]
-
-**Investment:** $XXXK
-**Team:** [Team composition]
-
-### Phase 2: [Title]
-[Same structure]
-
-### Phase 3: [Title]
-[Same structure]
-
-## Key Risks & Mitigation
-
-### Risk 1: [Risk description]
-**Mitigation:** [Specific tactical mitigation strategy]
-
-### Risk 2: [Risk description]
-**Mitigation:** [Specific tactical mitigation strategy]
-
-## Success Metrics
-- [Metric 1 with numbers]
-- [Metric 2 with numbers]
-- [Metric 3 with numbers]
-
-CRITICAL REQUIREMENTS:
-1. WEEK-BY-WEEK DETAILS: Real weeks, not vague phases
-2. REAL NUMBERS: Dollar amounts, percentages, quantities
-3. SPECIFIC TOOLS: Real software/services
-4. TEAM COMPOSITION: Roles and FTE
-5. 3+ PHASES: Each 4-10 weeks
-6. ROI CALCULATIONS: Show the math
-7. RISKS & MITIGATIONS: 4-5 specific risks with tactical solutions
-
-GENERATE NOW:"""
+{{
+  "title": "Specific roadmap title",
+  "subtitle": "One-line executive summary",
+  "narrative": "2-3 sentences on the challenge and approach",
+  "opportunities": [
+    {{
+      "name": "Opportunity name",
+      "emoji": "🎯",
+      "description": "Brief description",
+      "implementation": "Week 1-2: Task 1\\nWeek 3-4: Task 2",
+      "tools": "Tool 1, Tool 2, Tool 3",
+      "investment": "$XXK",
+      "team": "X role, Y role",
+      "roi": "XXX%",
+      "impact": "Specific business impact"
+    }}
+  ],
+  "phases": [
+    {{
+      "number": 1,
+      "title": "Phase title",
+      "duration": "X weeks",
+      "focus": "What this achieves",
+      "milestones": ["Milestone 1", "Milestone 2"],
+      "investment": "$XXK",
+      "team": "Team composition"
+    }}
+  ],
+  "risks": [
+    {{
+      "risk": "Risk name",
+      "mitigation": "How to mitigate"
+    }}
+  ],
+  "metrics": ["Metric 1", "Metric 2", "Metric 3"]
+}}"""
 
                 message = client.messages.create(
                     model="claude-haiku-4-5-20251001",
@@ -198,33 +168,113 @@ GENERATE NOW:"""
                     messages=[{"role": "user", "content": prompt}]
                 )
                 
+                # Extract text
                 response_text = ""
-                
-                # Extract text from response, skip thinking blocks
                 for block in message.content:
                     if hasattr(block, 'type') and block.type == 'text':
                         response_text = block.text.strip()
                         break
                 
-                if not response_text:
-                    raise ValueError("No text content found in response")
+                # Clean and parse JSON
+                if response_text.startswith('```'):
+                    response_text = response_text.split('```')[1]
+                    if response_text.startswith('json'):
+                        response_text = response_text[4:]
+                    response_text = response_text.strip()
                 
-                # Display roadmap generated successfully
-                st.success("Roadmap generated successfully!")
+                start_idx = response_text.find('{')
+                end_idx = response_text.rfind('}')
+                if start_idx != -1 and end_idx != -1:
+                    response_text = response_text[start_idx:end_idx+1]
+                
+                roadmap = json.loads(response_text)
+                
+                # Display roadmap
+                st.success("✅ Roadmap generated successfully!")
                 st.divider()
                 
-                # Display the markdown roadmap directly
-                st.markdown(response_text)
+                # Title and subtitle
+                st.markdown(f"## {roadmap.get('title', 'AI Roadmap')}")
+                st.markdown(f"*{roadmap.get('subtitle', '')}*")
+                st.divider()
+                
+                # Narrative
+                if roadmap.get('narrative'):
+                    st.info(f"**Overview:** {roadmap['narrative']}")
+                
+                # Opportunities
+                if roadmap.get('opportunities'):
+                    st.markdown("### 🎯 AI Opportunities")
+                    for idx, opp in enumerate(roadmap['opportunities'], 1):
+                        emoji = opp.get('emoji', '💡')
+                        with st.expander(f"{emoji} {idx}. {opp.get('name', 'Opportunity')}"):
+                            st.write(opp.get('description', ''))
+                            
+                            if opp.get('implementation'):
+                                st.markdown("**📅 Implementation Timeline:**")
+                                st.code(opp['implementation'], language="text")
+                            
+                            col1, col2, col3, col4 = st.columns(4)
+                            with col1:
+                                st.markdown('<div class="metric-card"><b>💰 Investment</b><br>' + opp.get('investment', 'TBD') + '</div>', unsafe_allow_html=True)
+                            with col2:
+                                st.markdown('<div class="metric-card"><b>📈 ROI</b><br>' + opp.get('roi', 'TBD') + '</div>', unsafe_allow_html=True)
+                            with col3:
+                                st.markdown('<div class="metric-card"><b>👥 Team</b><br><small>' + opp.get('team', 'TBD') + '</small></div>', unsafe_allow_html=True)
+                            with col4:
+                                st.markdown('<div class="metric-card"><b>🛠️ Tools</b><br><small>' + opp.get('tools', 'TBD') + '</small></div>', unsafe_allow_html=True)
+                            
+                            if opp.get('impact'):
+                                st.markdown(f"**📊 Business Impact:** {opp['impact']}")
+                
+                # Phases
+                if roadmap.get('phases'):
+                    st.markdown("### 📋 Implementation Roadmap")
+                    for phase in roadmap['phases']:
+                        with st.expander(f"Phase {phase.get('number', 1)}: {phase.get('title', 'Phase')} ({phase.get('duration', '')})"):
+                            if phase.get('focus'):
+                                st.write(f"**Focus:** {phase['focus']}")
+                            
+                            if phase.get('milestones'):
+                                st.markdown("**Milestones:**")
+                                for m in phase['milestones']:
+                                    st.write(f"✓ {m}")
+                            
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                st.markdown(f"**💰 Investment:** {phase.get('investment', 'TBD')}")
+                            with col2:
+                                st.markdown(f"**👥 Team:** {phase.get('team', 'TBD')}")
+                
+                # Risks
+                if roadmap.get('risks'):
+                    st.markdown("### ⚠️ Key Risks & Mitigation")
+                    for risk in roadmap['risks']:
+                        with st.expander(f"⚠️ {risk.get('risk', 'Risk')}"):
+                            st.write(risk.get('mitigation', ''))
+                
+                # Metrics
+                if roadmap.get('metrics'):
+                    st.markdown("### 📊 Success Metrics")
+                    col1, col2, col3 = st.columns(3)
+                    for idx, metric in enumerate(roadmap['metrics']):
+                        if idx % 3 == 0:
+                            col1.markdown(f"✓ {metric}")
+                        elif idx % 3 == 1:
+                            col2.markdown(f"✓ {metric}")
+                        else:
+                            col3.markdown(f"✓ {metric}")
                 
             except json.JSONDecodeError as e:
-                st.error(f"Error parsing response: {str(e)}")
+                st.error(f"Error parsing response. Please try again.")
             except Exception as e:
                 st.error(f"Error generating roadmap: {str(e)}")
 
 # Footer
+st.divider()
 st.markdown("""
 <div class="footer-section">
-    <div class="footer-name">Crafted by Raquel Rodrigues dos Santos</div>
+    <div class="footer-name">🎨 Crafted by Raquel Rodrigues dos Santos</div>
     <div class="footer-title">Digital Strategy & AI Transformation Specialist</div>
 </div>
 """, unsafe_allow_html=True)
