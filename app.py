@@ -58,7 +58,7 @@ with st.sidebar:
     st.header("Your Challenge")
     industry = st.selectbox("What is your industry?", ("Finance", "Retail", "Healthcare", "Manufacturing", "Tech"))
     challenge = st.text_area("Describe your key business challenge", placeholder="What specific problem are you trying to solve?\n\nInclude:\n• Current situation (what's happening now?)\n• Pain points (what's costing you money/time?)\n• Desired outcome (what do you want to achieve?)\n• Any constraints or priorities", height=220)
-    company_size = st.selectbox("Company size", ("Startup (1-50)", "SMB (50-500)", "Mid-market (500-5K)", "Enterprise (5K+)"))
+    company_size = st.selectbox("Company size", ("Startup (1-50 employees)", "Small & Medium Business (50-500 employees)", "Mid-market (500-5K employees)", "Enterprise (5K+ employees)"))
     budget = st.selectbox("Approximate budget for this initiative", ("$25K-50K", "$50K-100K", "$100K-250K", "$250K-500K", "$500K+"))
     timeline = st.selectbox("Timeline to implement", ("1-3 months", "3-6 months", "6-12 months", "12+ months"))
     generate_btn = st.button("Generate Roadmap", type="primary")
