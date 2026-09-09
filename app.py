@@ -194,11 +194,10 @@ Return ONLY valid JSON (no markdown, no code blocks):
                 
                 roadmap = json.loads(response_text)
                 
-                # Display roadmap
+                # Display roadmap with custom HTML for spacing control
                 st.success("Roadmap generated successfully!")
-                st.divider()
                 
-                # Title and subtitle
+                # Title
                 st.markdown(f"## {roadmap.get('title', 'AI Roadmap')}")
                 st.markdown(f"*{roadmap.get('subtitle', '')}*")
                 
@@ -209,111 +208,118 @@ Return ONLY valid JSON (no markdown, no code blocks):
                 # Opportunities
                 if roadmap.get('opportunities'):
                     st.markdown("## AI Opportunities")
+                    opp_html = ""
                     for idx, opp in enumerate(roadmap['opportunities'], 1):
-                        with st.expander(f"{idx}. {opp.get('name', 'Opportunity')}", expanded=idx==1):
-                            col_main, col_metrics = st.columns([2, 1])
+                        opp_html += f"""
+                        <div style="margin-bottom: 1.5rem; border: 1px solid #ddd; border-radius: 8px; padding: 1rem;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: #0f2c4a;">{idx}. {opp.get('name', 'Opportunity')}</h4>
+                            <p style="margin: 0 0 0.5rem 0; font-size: 14px;">{opp.get('description', '')}</p>
                             
-                            with col_main:
-                                st.write(opp.get('description', ''))
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                                <div>
+                                    <p style="margin: 0 0 0.3rem 0; font-weight: 600; font-size: 13px;">Implementation Timeline</p>
+                                    {('<ul style="margin: 0.3rem 0; padding-left: 1.2rem; font-size: 13px;">' + 
+                                    ''.join([f'<li style="margin: 0; line-height: 1.3;">{line.strip()}</li>' for line in opp['implementation'].split('\\n') if line.strip()]) + 
+                                    '</ul>') if opp.get('implementation') else ''}
+                                    
+                                    {f'<p style="margin: 0.5rem 0 0 0; font-weight: 600; font-size: 13px;">Business Impact</p><p style="margin: 0.2rem 0 0 0; font-size: 13px;">{opp.get("impact", "")}</p>' if opp.get('impact') else ''}
+                                </div>
                                 
-                                if opp.get('implementation'):
-                                    st.markdown("**Implementation Timeline**")
-                                    for line in opp['implementation'].split('\n'):
-                                        if line.strip():
-                                            st.write(f"• {line.strip()}")
-                                
-                                if opp.get('impact'):
-                                    st.markdown("**Business Impact**")
-                                    st.write(opp['impact'])
-                            
-                            with col_metrics:
-                                st.markdown("**Investment**")
-                                st.metric("", opp.get('investment', 'TBD'))
-                                st.markdown("**ROI**")
-                                st.metric("", opp.get('roi', 'TBD'))
-                                st.markdown("---")
-                                st.write(f"**Team:** {opp.get('team', 'TBD')}")
-                                st.write(f"**Tools:** {opp.get('tools', 'TBD')}")
+                                <div style="border-left: 1px solid #ddd; padding-left: 1rem;">
+                                    <div style="margin-bottom: 0.8rem;">
+                                        <p style="margin: 0 0 0.2rem 0; font-size: 12px; color: #666;">Investment</p>
+                                        <p style="margin: 0; font-size: 16px; font-weight: 700; color: #0f2c4a;">{opp.get('investment', 'TBD')}</p>
+                                    </div>
+                                    <div style="margin-bottom: 0.8rem;">
+                                        <p style="margin: 0 0 0.2rem 0; font-size: 12px; color: #666;">ROI</p>
+                                        <p style="margin: 0; font-size: 16px; font-weight: 700; color: #0f2c4a;">{opp.get('roi', 'TBD')}</p>
+                                    </div>
+                                    <hr style="margin: 0.5rem 0; border: none; border-top: 1px solid #ddd;">
+                                    <p style="margin: 0.3rem 0 0 0; font-size: 12px;"><b>Team:</b> {opp.get('team', 'TBD')}</p>
+                                    <p style="margin: 0.2rem 0 0 0; font-size: 12px;"><b>Tools:</b> {opp.get('tools', 'TBD')}</p>
+                                </div>
+                            </div>
+                        </div>
+                        """
+                    st.markdown(opp_html, unsafe_allow_html=True)
                 
                 # Phases
                 if roadmap.get('phases'):
                     st.markdown("## Implementation Roadmap")
+                    phase_html = ""
                     for phase in roadmap['phases']:
-                        with st.expander(f"Phase {phase.get('number', 1)}: {phase.get('title', 'Phase')} | {phase.get('duration', '')}"):
-                            col1, col2 = st.columns(2)
+                        milestones_html = ""
+                        if phase.get('milestones'):
+                            milestones_html = '<ul style="margin: 0.3rem 0; padding-left: 1.2rem; font-size: 13px;">' + \
+                                            ''.join([f'<li style="margin: 0; line-height: 1.2;">{m}</li>' for m in phase['milestones']]) + \
+                                            '</ul>'
+                        
+                        phase_html += f"""
+                        <div style="margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 8px; padding: 1rem;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: #0f2c4a;">Phase {phase.get('number', 1)}: {phase.get('title', 'Phase')} | {phase.get('duration', '')}</h4>
                             
-                            with col1:
-                                st.markdown("**Focus**")
-                                st.write(phase.get('focus', 'N/A'))
-                                if phase.get('milestones'):
-                                    st.markdown("**Milestones**")
-                                    for m in phase['milestones']:
-                                        st.write(f"• {m}")
-                            
-                            with col2:
-                                st.metric("Investment", phase.get('investment', 'TBD'))
-                                st.write(f"**Team:** {phase.get('team', 'TBD')}")
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; font-size: 13px;">
+                                <div>
+                                    <p style="margin: 0 0 0.3rem 0; font-weight: 600;">Focus</p>
+                                    <p style="margin: 0 0 0.5rem 0;">{phase.get('focus', 'N/A')}</p>
+                                    
+                                    <p style="margin: 0.3rem 0 0.3rem 0; font-weight: 600;">Milestones</p>
+                                    {milestones_html}
+                                </div>
+                                
+                                <div style="border-left: 1px solid #ddd; padding-left: 1rem;">
+                                    <p style="margin: 0 0 0.2rem 0; font-size: 12px; color: #666;">Investment</p>
+                                    <p style="margin: 0 0 0.5rem 0; font-size: 15px; font-weight: 700; color: #0f2c4a;">{phase.get('investment', 'TBD')}</p>
+                                    <p style="margin: 0.3rem 0 0 0; font-size: 12px;"><b>Team:</b><br>{phase.get('team', 'TBD')}</p>
+                                </div>
+                            </div>
+                        </div>
+                        """
+                    st.markdown(phase_html, unsafe_allow_html=True)
                 
                 # Risks
                 if roadmap.get('risks'):
                     st.markdown("## Key Risks & Mitigation")
+                    risk_html = ""
                     for risk in roadmap['risks']:
-                        with st.expander(f"{risk.get('risk', 'Risk')}"):
-                            st.write(risk.get('mitigation', ''))
+                        risk_html += f"""
+                        <div style="margin-bottom: 0.8rem; border-left: 3px solid #dc3545; padding-left: 1rem;">
+                            <p style="margin: 0 0 0.2rem 0; font-weight: 600; font-size: 14px; color: #dc3545;">{risk.get('risk', 'Risk')}</p>
+                            <p style="margin: 0; font-size: 13px;">{risk.get('mitigation', '')}</p>
+                        </div>
+                        """
+                    st.markdown(risk_html, unsafe_allow_html=True)
                 
                 # Metrics
                 if roadmap.get('metrics'):
                     st.markdown("## Success Metrics")
-                    
-                    # Show max 4 metrics in 2 rows of 2
                     metrics_to_show = roadmap['metrics'][:4]
                     
-                    for row_idx in range(0, len(metrics_to_show), 2):
-                        cols = st.columns(2)
-                        for col_idx, col in enumerate(cols):
-                            metric_idx = row_idx + col_idx
-                            if metric_idx < len(metrics_to_show):
-                                metric = metrics_to_show[metric_idx]
-                                
-                                # Try to extract number and description
-                                parts = metric.split(':')
-                                if len(parts) >= 2:
-                                    # Extract potential number from first part
-                                    first_part = parts[0].strip()
-                                    # Get last number-like part
-                                    import re
-                                    numbers = re.findall(r'\d+[\d%\+\-]*', first_part)
-                                    if numbers:
-                                        value = numbers[-1]
-                                        description = ':'.join(parts[1:]).strip()[:40]
-                                    else:
-                                        value = first_part[-20:]
-                                        description = ':'.join(parts[1:]).strip()[:30]
-                                else:
-                                    value = metric[:25]
-                                    description = ""
-                                
-                                with col:
-                                    st.markdown(f"""
-                                    <div style="
-                                        background: linear-gradient(135deg, #0f2c4a 0%, #1a3f5c 100%);
-                                        padding: 1.5rem 1rem;
-                                        border-radius: 12px;
-                                        color: white;
-                                        text-align: center;
-                                        min-height: 180px;
-                                        display: flex;
-                                        flex-direction: column;
-                                        justify-content: center;
-                                    ">
-                                        <div style="font-size: 32px; font-weight: 700; margin-bottom: 0.8rem; word-wrap: break-word;">
-                                            {value}
-                                        </div>
-                                        <div style="font-size: 12px; opacity: 0.85; line-height: 1.3;">
-                                            {description}
-                                        </div>
-                                    </div>
-                                    """, unsafe_allow_html=True)
+                    metrics_html = '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">'
+                    for metric in metrics_to_show:
+                        parts = metric.split(':')
+                        if len(parts) >= 2:
+                            import re
+                            first_part = parts[0].strip()
+                            numbers = re.findall(r'\d+[\d%\+\-]*', first_part)
+                            if numbers:
+                                value = numbers[-1]
+                                description = ':'.join(parts[1:]).strip()[:40]
+                            else:
+                                value = first_part[-20:]
+                                description = ':'.join(parts[1:]).strip()[:30]
+                        else:
+                            value = metric[:25]
+                            description = ""
+                        
+                        metrics_html += f"""
+                        <div style="background: linear-gradient(135deg, #0f2c4a 0%, #1a3f5c 100%); padding: 1.5rem; border-radius: 8px; color: white; text-align: center;">
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 0.5rem;">{value}</div>
+                            <div style="font-size: 12px; line-height: 1.3;">{description}</div>
+                        </div>
+                        """
+                    metrics_html += '</div>'
+                    st.markdown(metrics_html, unsafe_allow_html=True)
                 
             except json.JSONDecodeError as e:
                 st.error(f"Error parsing response. Please try again.")
