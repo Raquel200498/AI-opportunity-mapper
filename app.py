@@ -268,39 +268,56 @@ Return ONLY valid JSON (no markdown, no code blocks):
                 # Metrics
                 if roadmap.get('metrics'):
                     st.markdown("## Success Metrics")
-                    cols = st.columns(len(roadmap['metrics']))
                     
-                    for idx, metric in enumerate(roadmap['metrics']):
-                        with cols[idx]:
-                            # Extract number and description if possible
-                            parts = metric.split(':')
-                            if len(parts) == 2:
-                                title = parts[0].strip()
-                                value = parts[1].strip()
-                            else:
-                                title = metric
-                                value = ""
-                            
-                            st.markdown(f"""
-                            <div style="
-                                background: linear-gradient(135deg, #0f2c4a 0%, #1a3f5c 100%);
-                                padding: 2rem 1rem;
-                                border-radius: 12px;
-                                color: white;
-                                text-align: center;
-                                min-height: 140px;
-                                display: flex;
-                                flex-direction: column;
-                                justify-content: center;
-                            ">
-                                <div style="font-size: 28px; font-weight: 700; margin-bottom: 0.5rem;">
-                                    {value if value else title}
-                                </div>
-                                <div style="font-size: 13px; opacity: 0.9;">
-                                    {title if value else ""}
-                                </div>
-                            </div>
-                            """, unsafe_allow_html=True)
+                    # Show max 4 metrics in 2 rows of 2
+                    metrics_to_show = roadmap['metrics'][:4]
+                    
+                    for row_idx in range(0, len(metrics_to_show), 2):
+                        cols = st.columns(2)
+                        for col_idx, col in enumerate(cols):
+                            metric_idx = row_idx + col_idx
+                            if metric_idx < len(metrics_to_show):
+                                metric = metrics_to_show[metric_idx]
+                                
+                                # Try to extract number and description
+                                parts = metric.split(':')
+                                if len(parts) >= 2:
+                                    # Extract potential number from first part
+                                    first_part = parts[0].strip()
+                                    # Get last number-like part
+                                    import re
+                                    numbers = re.findall(r'\d+[\d%\+\-]*', first_part)
+                                    if numbers:
+                                        value = numbers[-1]
+                                        description = ':'.join(parts[1:]).strip()[:40]
+                                    else:
+                                        value = first_part[-20:]
+                                        description = ':'.join(parts[1:]).strip()[:30]
+                                else:
+                                    value = metric[:25]
+                                    description = ""
+                                
+                                with col:
+                                    st.markdown(f"""
+                                    <div style="
+                                        background: linear-gradient(135deg, #0f2c4a 0%, #1a3f5c 100%);
+                                        padding: 1.5rem 1rem;
+                                        border-radius: 12px;
+                                        color: white;
+                                        text-align: center;
+                                        min-height: 180px;
+                                        display: flex;
+                                        flex-direction: column;
+                                        justify-content: center;
+                                    ">
+                                        <div style="font-size: 32px; font-weight: 700; margin-bottom: 0.8rem; word-wrap: break-word;">
+                                            {value}
+                                        </div>
+                                        <div style="font-size: 12px; opacity: 0.85; line-height: 1.3;">
+                                            {description}
+                                        </div>
+                                    </div>
+                                    """, unsafe_allow_html=True)
                 
             except json.JSONDecodeError as e:
                 st.error(f"Error parsing response. Please try again.")
