@@ -41,10 +41,10 @@ st.markdown("""
         color: #666;
     }
     .metric-card {
-        background: white;
+        background: #f5f5f5;
         padding: 1rem;
         border-radius: 8px;
-        border: 1px solid #ddd;
+        border: 1px solid #e0e0e0;
         text-align: center;
     }
     .opportunity-header {
@@ -57,7 +57,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Header
-st.markdown("# 🎯 AI Opportunity Mapper")
+st.markdown("# AI Opportunity Mapper")
 st.markdown("*Tailored AI Transformation Roadmaps*")
 st.divider()
 
@@ -77,7 +77,7 @@ st.markdown("""
 
 # Sidebar for inputs
 with st.sidebar:
-    st.header("📋 Your Challenge")
+    st.header("Your Challenge")
     
     industry = st.selectbox(
         "What is your industry?",
@@ -105,14 +105,14 @@ with st.sidebar:
         ("1-3 months", "3-6 months", "6-12 months", "12+ months")
     )
     
-    generate_btn = st.button("✨ Generate Roadmap", type="primary")
+    generate_btn = st.button("Generate Roadmap", type="primary")
 
 # Main content area
 if generate_btn:
     if not industry or not challenge or not company_size or not budget or not timeline:
-        st.error("❌ Please complete all fields")
+        st.error("Please complete all fields")
     else:
-        with st.spinner("🔄 Analyzing your challenge and generating roadmap..."):
+        with st.spinner("Generating your roadmap..."):
             try:
                 prompt = f"""You are an elite AI consulting expert. Generate a JSON roadmap for this challenge.
 
@@ -190,7 +190,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
                 roadmap = json.loads(response_text)
                 
                 # Display roadmap
-                st.success("✅ Roadmap generated successfully!")
+                st.success("Roadmap generated successfully!")
                 st.divider()
                 
                 # Title and subtitle
@@ -204,66 +204,74 @@ Return ONLY valid JSON (no markdown, no code blocks):
                 
                 # Opportunities
                 if roadmap.get('opportunities'):
-                    st.markdown("### 🎯 AI Opportunities")
+                    st.markdown("## AI Opportunities")
                     for idx, opp in enumerate(roadmap['opportunities'], 1):
-                        emoji = opp.get('emoji', '💡')
-                        with st.expander(f"{emoji} {idx}. {opp.get('name', 'Opportunity')}"):
-                            st.write(opp.get('description', ''))
+                        with st.expander(f"{idx}. {opp.get('name', 'Opportunity')}", expanded=idx==1):
+                            col1, col2 = st.columns([2, 1])
                             
-                            if opp.get('implementation'):
-                                st.markdown("**📅 Implementation Timeline:**")
-                                st.code(opp['implementation'], language="text")
-                            
-                            col1, col2, col3, col4 = st.columns(4)
                             with col1:
-                                st.markdown('<div class="metric-card"><b>💰 Investment</b><br>' + opp.get('investment', 'TBD') + '</div>', unsafe_allow_html=True)
-                            with col2:
-                                st.markdown('<div class="metric-card"><b>📈 ROI</b><br>' + opp.get('roi', 'TBD') + '</div>', unsafe_allow_html=True)
-                            with col3:
-                                st.markdown('<div class="metric-card"><b>👥 Team</b><br><small>' + opp.get('team', 'TBD') + '</small></div>', unsafe_allow_html=True)
-                            with col4:
-                                st.markdown('<div class="metric-card"><b>🛠️ Tools</b><br><small>' + opp.get('tools', 'TBD') + '</small></div>', unsafe_allow_html=True)
+                                st.write(opp.get('description', ''))
+                                
+                                if opp.get('implementation'):
+                                    st.markdown("**Implementation Timeline**")
+                                    for line in opp['implementation'].split('\n'):
+                                        if line.strip():
+                                            st.write(f"• {line.strip()}")
+                                
+                                if opp.get('impact'):
+                                    st.markdown("**Business Impact**")
+                                    st.write(opp['impact'])
                             
-                            if opp.get('impact'):
-                                st.markdown(f"**📊 Business Impact:** {opp['impact']}")
+                            with col2:
+                                st.markdown("**Key Metrics**")
+                                st.metric("Investment", opp.get('investment', 'TBD'))
+                                st.metric("ROI", opp.get('roi', 'TBD'))
+                                st.markdown("---")
+                                st.markdown(f"**Team:** {opp.get('team', 'TBD')}")
+                                st.markdown(f"**Tools:** {opp.get('tools', 'TBD')}")
                 
                 # Phases
                 if roadmap.get('phases'):
-                    st.markdown("### 📋 Implementation Roadmap")
+                    st.markdown("## Implementation Roadmap")
                     for phase in roadmap['phases']:
-                        with st.expander(f"Phase {phase.get('number', 1)}: {phase.get('title', 'Phase')} ({phase.get('duration', '')})"):
-                            if phase.get('focus'):
-                                st.write(f"**Focus:** {phase['focus']}")
-                            
-                            if phase.get('milestones'):
-                                st.markdown("**Milestones:**")
-                                for m in phase['milestones']:
-                                    st.write(f"✓ {m}")
-                            
+                        with st.expander(f"Phase {phase.get('number', 1)}: {phase.get('title', 'Phase')} | {phase.get('duration', '')}"):
                             col1, col2 = st.columns(2)
+                            
                             with col1:
-                                st.markdown(f"**💰 Investment:** {phase.get('investment', 'TBD')}")
+                                st.markdown("**Focus**")
+                                st.write(phase.get('focus', 'N/A'))
+                                
+                                if phase.get('milestones'):
+                                    st.markdown("**Milestones**")
+                                    for m in phase['milestones']:
+                                        st.write(f"• {m}")
+                            
                             with col2:
-                                st.markdown(f"**👥 Team:** {phase.get('team', 'TBD')}")
+                                st.metric("Investment", phase.get('investment', 'TBD'))
+                                st.markdown(f"**Team:** {phase.get('team', 'TBD')}")
                 
                 # Risks
                 if roadmap.get('risks'):
-                    st.markdown("### ⚠️ Key Risks & Mitigation")
+                    st.markdown("## Key Risks & Mitigation")
                     for risk in roadmap['risks']:
-                        with st.expander(f"⚠️ {risk.get('risk', 'Risk')}"):
+                        with st.expander(f"{risk.get('risk', 'Risk')}"):
+                            st.markdown("**Mitigation Strategy**")
                             st.write(risk.get('mitigation', ''))
                 
                 # Metrics
                 if roadmap.get('metrics'):
-                    st.markdown("### 📊 Success Metrics")
+                    st.markdown("## Success Metrics")
                     col1, col2, col3 = st.columns(3)
                     for idx, metric in enumerate(roadmap['metrics']):
                         if idx % 3 == 0:
-                            col1.markdown(f"✓ {metric}")
+                            with col1:
+                                st.markdown(f"**{metric}**")
                         elif idx % 3 == 1:
-                            col2.markdown(f"✓ {metric}")
+                            with col2:
+                                st.markdown(f"**{metric}**")
                         else:
-                            col3.markdown(f"✓ {metric}")
+                            with col3:
+                                st.markdown(f"**{metric}**")
                 
             except json.JSONDecodeError as e:
                 st.error(f"Error parsing response. Please try again.")
@@ -274,7 +282,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
 st.divider()
 st.markdown("""
 <div class="footer-section">
-    <div class="footer-name">🎨 Crafted by Raquel Rodrigues dos Santos</div>
+    <div class="footer-name">Crafted by Raquel Rodrigues dos Santos</div>
     <div class="footer-title">Digital Strategy & AI Transformation Specialist</div>
 </div>
 """, unsafe_allow_html=True)
