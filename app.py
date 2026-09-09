@@ -163,7 +163,7 @@ CRITICAL REQUIREMENTS:
 GENERATE NOW:"""
 
                 message = client.messages.create(
-                    model="claude-sonnet-5",
+                    model="claude-haiku-4-5-20251001",
                     max_tokens=4000,
                     messages=[{"role": "user", "content": prompt}]
                 )
@@ -179,14 +179,25 @@ GENERATE NOW:"""
                 if not response_text:
                     raise ValueError("No text content found in response")
                 
-                # Clean markdown if present
+                # Clean up response - remove markdown code blocks if present
                 if response_text.startswith('```'):
                     response_text = response_text.split('```')[1]
                     if response_text.startswith('json'):
                         response_text = response_text[4:]
                     response_text = response_text.strip()
                 
-                roadmap = json.loads(response_text)
+                # Try to parse JSON
+                try:
+                    roadmap = json.loads(response_text)
+                except json.JSONDecodeError:
+                    # If first parse fails, try to extract JSON object
+                    start_idx = response_text.find('{')
+                    end_idx = response_text.rfind('}')
+                    if start_idx != -1 and end_idx != -1:
+                        response_text = response_text[start_idx:end_idx+1]
+                        roadmap = json.loads(response_text)
+                    else:
+                        raise ValueError(f"Could not parse JSON response: {response_text[:200]}")
                 
                 # Display roadmap
                 st.success("Roadmap generated successfully!")
