@@ -59,7 +59,6 @@ st.markdown("""
 # Header
 st.markdown("# AI Opportunity Mapper")
 st.markdown("*Tailored AI Transformation Roadmaps*")
-st.divider()
 
 # About section
 st.markdown("""
@@ -196,7 +195,6 @@ Return ONLY valid JSON (no markdown, no code blocks):
                 # Title and subtitle
                 st.markdown(f"## {roadmap.get('title', 'AI Roadmap')}")
                 st.markdown(f"*{roadmap.get('subtitle', '')}*")
-                st.divider()
                 
                 # Narrative
                 if roadmap.get('narrative'):
@@ -207,28 +205,38 @@ Return ONLY valid JSON (no markdown, no code blocks):
                     st.markdown("## AI Opportunities")
                     for idx, opp in enumerate(roadmap['opportunities'], 1):
                         with st.expander(f"{idx}. {opp.get('name', 'Opportunity')}", expanded=idx==1):
-                            col1, col2 = st.columns([2, 1])
+                            col_main, col_metrics = st.columns([2, 1])
                             
-                            with col1:
+                            with col_main:
+                                # Description block
                                 st.write(opp.get('description', ''))
                                 
+                                # Implementation block (directly after description, no gap)
                                 if opp.get('implementation'):
                                     st.markdown("**Implementation Timeline**")
                                     for line in opp['implementation'].split('\n'):
                                         if line.strip():
                                             st.write(f"• {line.strip()}")
                                 
+                                # BIG gap before Impact
+                                st.markdown("")
+                                st.markdown("")
+                                
+                                # Impact block (separate from implementation)
                                 if opp.get('impact'):
                                     st.markdown("**Business Impact**")
                                     st.write(opp['impact'])
                             
-                            with col2:
-                                st.markdown("**Key Metrics**")
-                                st.metric("Investment", opp.get('investment', 'TBD'))
-                                st.metric("ROI", opp.get('roi', 'TBD'))
+                            with col_metrics:
+                                st.markdown("**Investment**")
+                                st.metric("", opp.get('investment', 'TBD'))
+                                
+                                st.markdown("**ROI**")
+                                st.metric("", opp.get('roi', 'TBD'))
+                                
                                 st.markdown("---")
-                                st.markdown(f"**Team:** {opp.get('team', 'TBD')}")
-                                st.markdown(f"**Tools:** {opp.get('tools', 'TBD')}")
+                                st.markdown(f"**Team**  \n{opp.get('team', 'TBD')}")
+                                st.markdown(f"**Tools**  \n{opp.get('tools', 'TBD')}")
                 
                 # Phases
                 if roadmap.get('phases'):
@@ -255,23 +263,44 @@ Return ONLY valid JSON (no markdown, no code blocks):
                     st.markdown("## Key Risks & Mitigation")
                     for risk in roadmap['risks']:
                         with st.expander(f"{risk.get('risk', 'Risk')}"):
-                            st.markdown("**Mitigation Strategy**")
                             st.write(risk.get('mitigation', ''))
                 
                 # Metrics
                 if roadmap.get('metrics'):
                     st.markdown("## Success Metrics")
-                    col1, col2, col3 = st.columns(3)
+                    cols = st.columns(len(roadmap['metrics']))
+                    
                     for idx, metric in enumerate(roadmap['metrics']):
-                        if idx % 3 == 0:
-                            with col1:
-                                st.markdown(f"**{metric}**")
-                        elif idx % 3 == 1:
-                            with col2:
-                                st.markdown(f"**{metric}**")
-                        else:
-                            with col3:
-                                st.markdown(f"**{metric}**")
+                        with cols[idx]:
+                            # Extract number and description if possible
+                            parts = metric.split(':')
+                            if len(parts) == 2:
+                                title = parts[0].strip()
+                                value = parts[1].strip()
+                            else:
+                                title = metric
+                                value = ""
+                            
+                            st.markdown(f"""
+                            <div style="
+                                background: linear-gradient(135deg, #0f2c4a 0%, #1a3f5c 100%);
+                                padding: 2rem 1rem;
+                                border-radius: 12px;
+                                color: white;
+                                text-align: center;
+                                min-height: 140px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                            ">
+                                <div style="font-size: 28px; font-weight: 700; margin-bottom: 0.5rem;">
+                                    {value if value else title}
+                                </div>
+                                <div style="font-size: 13px; opacity: 0.9;">
+                                    {title if value else ""}
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
                 
             except json.JSONDecodeError as e:
                 st.error(f"Error parsing response. Please try again.")
@@ -279,7 +308,6 @@ Return ONLY valid JSON (no markdown, no code blocks):
                 st.error(f"Error generating roadmap: {str(e)}")
 
 # Footer
-st.divider()
 st.markdown("""
 <div class="footer-section">
     <div class="footer-name">Crafted by Raquel Rodrigues dos Santos</div>
