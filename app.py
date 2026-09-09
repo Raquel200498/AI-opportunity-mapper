@@ -194,13 +194,14 @@ Return ONLY valid JSON (no markdown, no code blocks):
                         with st.expander(risk.get('risk', 'Risk')):
                             st.write(risk.get('mitigation', ''))
                 
-                # METRICS - Simple cards
+                # METRICS - Better display
                 if roadmap.get('metrics'):
                     st.markdown("## Success Metrics")
-                    cols = st.columns(min(3, len(roadmap['metrics'])))
-                    for idx, metric in enumerate(roadmap['metrics'][:3]):
-                        with cols[idx]:
-                            st.metric(label="", value=metric[:30])
+                    cols = st.columns(min(2, len(roadmap['metrics'])))
+                    for idx, metric in enumerate(roadmap['metrics'][:4]):
+                        col_idx = idx % 2
+                        with cols[col_idx]:
+                            st.caption(f"✓ {metric}")
                 
             except json.JSONDecodeError:
                 st.error("Error parsing response. Please try again.")
