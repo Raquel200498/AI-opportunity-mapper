@@ -74,7 +74,7 @@ with st.sidebar:
     
     challenge = st.text_area(
         "Describe your key business challenge",
-        placeholder="What specific problem are you trying to solve? Be detailed about current situation, pain points, and desired outcome.",
+        placeholder="What specific problem are you trying to solve?\n\nInclude:\n• Current situation (what's happening now?)\n• Pain points (what's costing you money/time?)\n• Desired outcome (what do you want to achieve?)\n• Any constraints or priorities",
         height=150
     )
     
