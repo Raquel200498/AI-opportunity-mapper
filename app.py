@@ -168,13 +168,16 @@ GENERATE NOW:"""
                     messages=[{"role": "user", "content": prompt}]
                 )
                 
-                response_text = message.content[0].text
+                response_text = ""
                 
-                # Handle thinking blocks - find the actual text response
+                # Extract text from response, skip thinking blocks
                 for block in message.content:
-                    if hasattr(block, 'text'):
+                    if hasattr(block, 'type') and block.type == 'text':
                         response_text = block.text.strip()
                         break
+                
+                if not response_text:
+                    raise ValueError("No text content found in response")
                 
                 # Clean markdown if present
                 if response_text.startswith('```'):
