@@ -24,12 +24,12 @@ st.markdown("""
         padding: 1.5rem;
         border-radius: 10px;
         border-left: 4px solid #0f2c4a;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
     }
     .footer-section {
         border-top: 2px solid #0f2c4a;
-        padding-top: 2rem;
-        margin-top: 3rem;
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
         text-align: center;
         color: #0f2c4a;
     }
@@ -59,7 +59,7 @@ st.markdown("""
     <br><br>
     <b>Perfect for:</b> Business leaders, digital strategists, CTOs, and consultants evaluating AI initiatives and planning digital transformation.
     <br><br>
-    <i>Created by <b>Raquel Rodrigues dos Santos</b> - Digital Strategy & AI Transformation Consultant</i>
+    <i>Created by <b>Raquel Rodrigues dos Santos</b> - Digital Strategy & AI Transformation Specialist</i>
 </div>
 """, unsafe_allow_html=True)
 
@@ -253,6 +253,6 @@ st.divider()
 st.markdown("""
 <div class="footer-section">
     <div class="footer-name">Crafted by Raquel Rodrigues dos Santos</div>
-    <div class="footer-title">Digital Strategy & AI Transformation Consultant</div>
+    <div class="footer-title">Digital Strategy & AI Transformation Specialist</div>
 </div>
 """, unsafe_allow_html=True)
