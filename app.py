@@ -69,7 +69,7 @@ with st.sidebar:
     
     industry = st.selectbox(
         "What is your industry?",
-        ("Finance", "Retail", "Healthcare", "Manufacturing", "Tech", "Other")
+        ("Finance", "Retail", "Healthcare", "Manufacturing", "Tech")
     )
     
     challenge = st.text_area(
