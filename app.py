@@ -63,8 +63,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.divider()
-
 # Sidebar for inputs
 with st.sidebar:
     st.header("Your Challenge")
@@ -249,7 +247,6 @@ GENERATE NOW:"""
                 st.error(f"Error generating roadmap: {str(e)}")
 
 # Footer
-st.divider()
 st.markdown("""
 <div class="footer-section">
     <div class="footer-name">Crafted by Raquel Rodrigues dos Santos</div>
