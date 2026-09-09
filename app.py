@@ -83,11 +83,21 @@ with st.sidebar:
         ("Startup (1-50)", "SMB (50-500)", "Mid-market (500-5K)", "Enterprise (5K+)")
     )
     
+    budget = st.selectbox(
+        "Approximate budget for this initiative",
+        ("$25K-50K", "$50K-100K", "$100K-250K", "$250K-500K", "$500K+")
+    )
+    
+    timeline = st.selectbox(
+        "Timeline to implement",
+        ("1-3 months", "3-6 months", "6-12 months", "12+ months")
+    )
+    
     generate_btn = st.button("Generate Roadmap", type="primary")
 
 # Main content area
 if generate_btn:
-    if not industry or not challenge or not company_size:
+    if not industry or not challenge or not company_size or not budget or not timeline:
         st.error("Please complete all fields")
     else:
         with st.spinner("Analyzing your challenge and generating roadmap..."):
@@ -97,6 +107,8 @@ if generate_btn:
 USER'S SITUATION:
 - Industry: {industry}
 - Company Size: {company_size}
+- Budget: {budget}
+- Timeline: {timeline}
 - Challenge: {challenge}
 
 GENERATE A COMPREHENSIVE ROADMAP AS VALID JSON (no markdown, no code blocks, no preamble):
