@@ -111,45 +111,75 @@ USER'S SITUATION:
 - Timeline: {timeline}
 - Challenge: {challenge}
 
-GENERATE A COMPREHENSIVE ROADMAP AS VALID JSON (no markdown, no code blocks, no preamble):
+GENERATE A COMPREHENSIVE ROADMAP AS MARKDOWN (NOT JSON):
 
-{{
-  "title": "Specific roadmap title",
-  "subtitle": "Executive summary (one line)",
-  "narrative": "2-3 paragraphs explaining the challenge and transformation approach",
-  "opportunities": [
-    {{
-      "name": "Specific AI opportunity name",
-      "description": "2-3 sentences describing it",
-      "implementation": "Week-by-week breakdown (Week 1-2: task, Week 3-4: task, etc)",
-      "tools": "Specific tech (e.g., TensorFlow, Snowflake, AWS SageMaker)",
-      "investment": "Specific amount (e.g., $45K)",
-      "team": "Team composition (e.g., 2 Data Scientists, 1 ML Engineer)",
-      "roi": "Specific ROI (e.g., 180-220%)",
-      "businessImpact": "Specific impact with numbers"
-    }}
-  ],
-  "phases": [
-    {{
-      "number": 1,
-      "title": "Phase title",
-      "duration": "X weeks | $YYK",
-      "focus": "What this phase achieves",
-      "milestones": ["Week 1-2: milestone", "Week 3: milestone"],
-      "activities": ["Activity 1", "Activity 2"],
-      "deliverables": ["Deliverable 1", "Deliverable 2"],
-      "investment": "$XXXK",
-      "team": "Team composition"
-    }}
-  ],
-  "risks": [
-    {{"risk": "Risk description", "mitigation": "Specific mitigation"}}
-  ],
-  "successMetrics": [
-    "Metric 1 with numbers",
-    "Metric 2 with numbers"
-  ]
-}}
+Use this structure:
+
+# [Roadmap Title]
+
+## Executive Summary
+[One line summary]
+
+## Overview
+[2-3 paragraphs explaining the challenge and transformation approach]
+
+## AI Opportunities
+
+### 1. [Opportunity Name]
+[2-3 sentences describing it]
+
+**Implementation:**
+Week 1-2: [specific tasks]
+Week 3-4: [next tasks]
+...
+
+**Tools:** [Specific tech - e.g., TensorFlow, Snowflake, AWS SageMaker]
+**Investment:** [Specific amount - e.g., $45K]
+**Team:** [Team composition - e.g., 2 Data Scientists, 1 ML Engineer]
+**ROI:** [Specific ROI - e.g., 180-220%]
+**Business Impact:** [Specific impact with numbers]
+
+### 2. [Opportunity Name]
+[Same structure as above]
+
+## Implementation Roadmap
+
+### Phase 1: [Title]
+**Duration:** X weeks | $YYK
+**Focus:** [What this phase achieves]
+**Milestones:**
+- Week 1-2: [milestone]
+- Week 3: [milestone]
+
+**Activities:**
+- [Activity 1]
+- [Activity 2]
+
+**Deliverables:**
+- [Deliverable 1]
+- [Deliverable 2]
+
+**Investment:** $XXXK
+**Team:** [Team composition]
+
+### Phase 2: [Title]
+[Same structure]
+
+### Phase 3: [Title]
+[Same structure]
+
+## Key Risks & Mitigation
+
+### Risk 1: [Risk description]
+**Mitigation:** [Specific tactical mitigation strategy]
+
+### Risk 2: [Risk description]
+**Mitigation:** [Specific tactical mitigation strategy]
+
+## Success Metrics
+- [Metric 1 with numbers]
+- [Metric 2 with numbers]
+- [Metric 3 with numbers]
 
 CRITICAL REQUIREMENTS:
 1. WEEK-BY-WEEK DETAILS: Real weeks, not vague phases
@@ -179,99 +209,12 @@ GENERATE NOW:"""
                 if not response_text:
                     raise ValueError("No text content found in response")
                 
-                # Clean up response - remove markdown code blocks if present
-                if response_text.startswith('```'):
-                    response_text = response_text.split('```')[1]
-                    if response_text.startswith('json'):
-                        response_text = response_text[4:]
-                    response_text = response_text.strip()
-                
-                # Try to parse JSON
-                try:
-                    roadmap = json.loads(response_text)
-                except json.JSONDecodeError:
-                    # If first parse fails, try to extract JSON object
-                    start_idx = response_text.find('{')
-                    end_idx = response_text.rfind('}')
-                    if start_idx != -1 and end_idx != -1:
-                        response_text = response_text[start_idx:end_idx+1]
-                        roadmap = json.loads(response_text)
-                    else:
-                        raise ValueError(f"Could not parse JSON response: {response_text[:200]}")
-                
-                # Display roadmap
+                # Display roadmap generated successfully
                 st.success("Roadmap generated successfully!")
                 st.divider()
                 
-                # Title and subtitle
-                st.markdown(f"## {roadmap.get('title', 'AI Roadmap')}")
-                if roadmap.get('subtitle'):
-                    st.markdown(f"*{roadmap['subtitle']}*")
-                
-                # Narrative
-                if roadmap.get('narrative'):
-                    st.info(roadmap['narrative'])
-                
-                # Opportunities
-                if roadmap.get('opportunities'):
-                    st.markdown("### AI Opportunities")
-                    for idx, opp in enumerate(roadmap['opportunities'], 1):
-                        with st.expander(f"{idx}. {opp.get('name', 'Opportunity')}"):
-                            st.write(opp.get('description', ''))
-                            if opp.get('implementation'):
-                                st.markdown("**Implementation:**")
-                                st.code(opp['implementation'])
-                            col1, col2, col3 = st.columns(3)
-                            with col1:
-                                st.metric("Investment", opp.get('investment', 'N/A'))
-                            with col2:
-                                st.metric("ROI", opp.get('roi', 'N/A'))
-                            with col3:
-                                st.metric("Team", opp.get('team', 'N/A'))
-                            if opp.get('tools'):
-                                st.write(f"**Tools:** {opp['tools']}")
-                            if opp.get('businessImpact'):
-                                st.write(f"**Business Impact:** {opp['businessImpact']}")
-                
-                # Phases
-                if roadmap.get('phases'):
-                    st.markdown("### Implementation Roadmap")
-                    for phase in roadmap['phases']:
-                        with st.expander(f"Phase {phase.get('number', 1)}: {phase.get('title', 'Phase')} ({phase.get('duration', '')})"):
-                            if phase.get('focus'):
-                                st.write(f"**Focus:** {phase['focus']}")
-                            if phase.get('milestones'):
-                                st.markdown("**Key Milestones:**")
-                                for m in phase['milestones']:
-                                    st.write(f"• {m}")
-                            if phase.get('activities'):
-                                st.markdown("**Activities:**")
-                                for a in phase['activities']:
-                                    st.write(f"• {a}")
-                            if phase.get('deliverables'):
-                                st.markdown("**Deliverables:**")
-                                for d in phase['deliverables']:
-                                    st.write(f"• {d}")
-                            col1, col2 = st.columns(2)
-                            with col1:
-                                if phase.get('investment'):
-                                    st.metric("Investment", phase['investment'])
-                            with col2:
-                                if phase.get('team'):
-                                    st.write(f"**Team:** {phase['team']}")
-                
-                # Risks
-                if roadmap.get('risks'):
-                    st.markdown("### Key Risks & Mitigation")
-                    for risk in roadmap['risks']:
-                        with st.expander(f"⚠️ {risk.get('risk', 'Risk')}"):
-                            st.write(risk.get('mitigation', ''))
-                
-                # Success metrics
-                if roadmap.get('successMetrics'):
-                    st.markdown("### Success Metrics")
-                    for metric in roadmap['successMetrics']:
-                        st.write(f"• {metric}")
+                # Display the markdown roadmap directly
+                st.markdown(response_text)
                 
             except json.JSONDecodeError as e:
                 st.error(f"Error parsing response: {str(e)}")
