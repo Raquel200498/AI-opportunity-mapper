@@ -40,18 +40,24 @@ st.markdown("""
         font-size: 13px;
         color: #666;
     }
-    .metric-card {
-        background: #f5f5f5;
-        padding: 1rem;
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
-        text-align: center;
+    
+    /* Aggressive spacing reduction */
+    div[data-testid="stMarkdownContainer"] {
+        margin-bottom: 0 !important;
     }
-    .opportunity-header {
-        font-size: 18px;
-        font-weight: 700;
-        color: #0f2c4a;
-        margin-bottom: 0.5rem;
+    
+    div[data-testid="stVerticalBlock"] > div {
+        margin-bottom: 0.1rem !important;
+    }
+    
+    p {
+        margin: 0 !important;
+        padding: 0.2rem 0 !important;
+    }
+    
+    li {
+        margin: 0.1rem 0 !important;
+        padding: 0.1rem 0 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -198,7 +204,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
                 
                 # Narrative
                 if roadmap.get('narrative'):
-                    st.info(f"**Overview:** {roadmap['narrative']}")
+                    st.info(roadmap['narrative'])
                 
                 # Opportunities
                 if roadmap.get('opportunities'):
@@ -208,21 +214,14 @@ Return ONLY valid JSON (no markdown, no code blocks):
                             col_main, col_metrics = st.columns([2, 1])
                             
                             with col_main:
-                                # Description block
                                 st.write(opp.get('description', ''))
                                 
-                                # Implementation block (directly after description, no gap)
                                 if opp.get('implementation'):
                                     st.markdown("**Implementation Timeline**")
                                     for line in opp['implementation'].split('\n'):
                                         if line.strip():
                                             st.write(f"• {line.strip()}")
                                 
-                                # BIG gap before Impact
-                                st.markdown("")
-                                st.markdown("")
-                                
-                                # Impact block (separate from implementation)
                                 if opp.get('impact'):
                                     st.markdown("**Business Impact**")
                                     st.write(opp['impact'])
@@ -230,13 +229,11 @@ Return ONLY valid JSON (no markdown, no code blocks):
                             with col_metrics:
                                 st.markdown("**Investment**")
                                 st.metric("", opp.get('investment', 'TBD'))
-                                
                                 st.markdown("**ROI**")
                                 st.metric("", opp.get('roi', 'TBD'))
-                                
                                 st.markdown("---")
-                                st.markdown(f"**Team**  \n{opp.get('team', 'TBD')}")
-                                st.markdown(f"**Tools**  \n{opp.get('tools', 'TBD')}")
+                                st.write(f"**Team:** {opp.get('team', 'TBD')}")
+                                st.write(f"**Tools:** {opp.get('tools', 'TBD')}")
                 
                 # Phases
                 if roadmap.get('phases'):
@@ -248,7 +245,6 @@ Return ONLY valid JSON (no markdown, no code blocks):
                             with col1:
                                 st.markdown("**Focus**")
                                 st.write(phase.get('focus', 'N/A'))
-                                
                                 if phase.get('milestones'):
                                     st.markdown("**Milestones**")
                                     for m in phase['milestones']:
@@ -256,7 +252,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
                             
                             with col2:
                                 st.metric("Investment", phase.get('investment', 'TBD'))
-                                st.markdown(f"**Team:** {phase.get('team', 'TBD')}")
+                                st.write(f"**Team:** {phase.get('team', 'TBD')}")
                 
                 # Risks
                 if roadmap.get('risks'):
