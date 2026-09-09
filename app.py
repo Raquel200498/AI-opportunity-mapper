@@ -19,12 +19,50 @@ st.markdown("""
         color: white;
         font-weight: 600;
     }
+    .about-section {
+        background-color: #e8f0f7;
+        padding: 1.5rem;
+        border-radius: 10px;
+        border-left: 4px solid #0f2c4a;
+        margin-bottom: 2rem;
+    }
+    .footer-section {
+        border-top: 2px solid #0f2c4a;
+        padding-top: 2rem;
+        margin-top: 3rem;
+        text-align: center;
+        color: #0f2c4a;
+    }
+    .footer-name {
+        font-weight: 600;
+        font-size: 16px;
+    }
+    .footer-title {
+        font-size: 13px;
+        color: #666;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Header
 st.markdown("# AI Opportunity Mapper")
 st.markdown("*Tailored AI Transformation Roadmaps*")
+st.divider()
+
+# About section
+st.markdown("""
+<div class="about-section">
+    <b>About this app:</b><br><br>
+    AI Opportunity Mapper is a digital transformation roadmap generator designed to help organizations accelerate their AI journey. Whether you're starting from scratch or optimizing existing processes, this tool generates detailed, actionable AI transformation roadmaps tailored to your specific business challenges.
+    <br><br>
+    <b>How it works:</b> Describe your business problem, select your industry, and receive a comprehensive roadmap including AI opportunities, week-by-week implementation phases, budget estimates, required team composition, ROI projections, and risk mitigation strategies.
+    <br><br>
+    <b>Perfect for:</b> Business leaders, digital strategists, CTOs, and consultants evaluating AI initiatives and planning digital transformation.
+    <br><br>
+    <i>Created by <b>Raquel Rodrigues dos Santos</b> - Digital Strategy & AI Transformation Consultant</i>
+</div>
+""", unsafe_allow_html=True)
+
 st.divider()
 
 # Sidebar for inputs
@@ -205,10 +243,16 @@ GENERATE NOW:"""
                     for metric in roadmap['successMetrics']:
                         st.write(f"• {metric}")
                 
-                st.divider()
-                st.markdown("**Crafted by Raquel Rodrigues dos Santos**")
-                
             except json.JSONDecodeError as e:
                 st.error(f"Error parsing response: {str(e)}")
             except Exception as e:
                 st.error(f"Error generating roadmap: {str(e)}")
+
+# Footer
+st.divider()
+st.markdown("""
+<div class="footer-section">
+    <div class="footer-name">Crafted by Raquel Rodrigues dos Santos</div>
+    <div class="footer-title">Digital Strategy & AI Transformation Consultant</div>
+</div>
+""", unsafe_allow_html=True)
